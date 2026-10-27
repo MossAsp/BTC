@@ -1,0 +1,102 @@
+{
+  "period": "2023-05-22 to 2026-10-17",
+  "n_oos_days": 1245,
+  "strategies": {
+    "RSI_Reversal": {
+      "n_trades": 18.0,
+      "total_return_pct": -12.313052095773525,
+      "annual_return_pct": -3.7819306402605113,
+      "win_rate_pct": 16.666666666666664,
+      "profit_factor": 0.47581833144403374,
+      "max_drawdown_pct": -15.639412243957777,
+      "sharpe_ratio": -0.6709877613200614,
+      "sortino_ratio": -0.9050151660079958,
+      "calmar_ratio": -0.2418205097011651,
+      "exposure_pct": 5.144694533762058,
+      "avg_holding_days": 3.5555555555555554
+    },
+    "MACD_Crossover": {
+      "n_trades": 49.0,
+      "total_return_pct": 11.755748538892895,
+      "annual_return_pct": 3.314858192118919,
+      "win_rate_pct": 36.734693877551024,
+      "profit_factor": 1.289702294317617,
+      "max_drawdown_pct": -12.22143220740487,
+      "sharpe_ratio": 0.4070516020684458,
+      "sortino_ratio": 0.6680789630332905,
+      "calmar_ratio": 0.27123320212098156,
+      "exposure_pct": 19.131832797427652,
+      "avg_holding_days": 4.857142857142857
+    },
+    "Volatility_Breakout": {
+      "n_trades": 25.0,
+      "total_return_pct": 4.510148557491345,
+      "annual_return_pct": 1.302754382743987,
+      "win_rate_pct": 36.0,
+      "profit_factor": 1.2218514278443664,
+      "max_drawdown_pct": -9.386482995097968,
+      "sharpe_ratio": 0.21806535135193167,
+      "sortino_ratio": 0.3451071184956827,
+      "calmar_ratio": 0.13879046959594368,
+      "exposure_pct": 11.495176848874598,
+      "avg_holding_days": 5.68
+    },
+    "ML_Ensemble": {
+      "n_trades": 77.0,
+      "total_return_pct": 10.934901026883503,
+      "annual_return_pct": 3.091625333440007,
+      "win_rate_pct": 42.857142857142854,
+      "profit_factor": 1.2781852358733896,
+      "max_drawdown_pct": -12.288685834603081,
+      "sharpe_ratio": 0.4028573444836731,
+      "sortino_ratio": 0.6533288647055833,
+      "calmar_ratio": 0.25158307202666513,
+      "exposure_pct": 29.903536977491964,
+      "avg_holding_days": 4.818181818181818
+    },
+    "Buy_and_Hold": {
+      "n_trades": 1.0,
+      "total_return_pct": 198.48646588021205,
+      "annual_return_pct": 37.83098536070306,
+      "win_rate_pct": 100.0,
+      "profit_factor": null,
+      "max_drawdown_pct": -52.971765913510616,
+      "sharpe_ratio": 0.9290017391106,
+      "sortino_ratio": 1.4238433096484964,
+      "calmar_ratio": 0.7141726296697644,
+      "exposure_pct": 100.0,
+      "avg_holding_days": 1243.0
+    }
+  },
+  "classification": {
+    "n_oos": 1245,
+    "accuracy": 0.48032128514056227,
+    "majority_class_baseline": 0.5357429718875502,
+    "roc_auc": 0.4675274819337736,
+    "brier_score": 0.2682967825241465,
+    "p_value_vs_50pct_naive": 0.9217798887671753,
+    "p_value_vs_majority_naive": 0.9999598495383901,
+    "p_value_vs_majority_conservative": 0.9400092988239012,
+    "n_effective_independent": 177,
+    "n_confident_signals": 677,
+    "accuracy_when_confident": 0.4519940915805022,
+    "n_buy_signals": 280,
+    "up_rate_after_buy_signal": 0.5178571428571429
+  },
+  "ml_sharpe_ci95": [
+    -0.6556204960671678,
+    1.3419738990571133
+  ],
+  "ml_p_sharpe_positive": 0.7875,
+  "bh_sharpe_ci95": [
+    -0.13216997351261428,
+    1.9589108438968845
+  ],
+  "notes": [
+    "Sharpe ของ ML (0.40) ใกล้เคียง MACD_Crossover (0.41) มากจนแยกไม่ออกทางสถิติ — ความซับซ้อนของโมเดลไม่ได้สร้างความได้เปรียบเหนือ baseline ง่ายๆ",
+    "**Buy & Hold ให้ผลปรับความเสี่ยงดีกว่า ML**: Sharpe 0.93 เทียบ 0.40, Calmar 0.71 เทียบ 0.25 (Sharpe ไม่ขึ้นกับสัดส่วนเงินลงทุน จึงไม่ใช่แค่เพราะ ML ถือสถานะ 30% ของเวลา) ข้อดีที่เหลือของ ML คือ Max Drawdown ต่ำกว่า (-12.3% เทียบ -53.0%) ส่วนผลตอบแทนรวมคือ 10.9% เทียบ 198.5% (ถ้า BTC ขาขึ้นแรงในช่วงข้อมูล กลยุทธ์ long-only ที่ถือสถานะบางช่วงจะเสียเปรียบเชิงโครงสร้าง)",
+    "ช่วงความเชื่อมั่น 95% ของ Sharpe (-0.66 ถึง 1.34) ครอบคลุม 0 — ยังสรุปไม่ได้ว่ากลยุทธ์มี edge จริงทางสถิติ",
+    "ผลไม่สม่ำเสมอข้ามช่วงเวลา: ช่วงที่ 4 (จาก 4 ช่วง) ML ขาดทุนหรือเสมอตัว",
+    "accuracy 48.0% ไม่ชนะการเดาด้วยคลาสส่วนใหญ่ (53.6%) อย่างมีนัยสำคัญ (p=0.94 แบบระมัดระวัง) — ถ้ากลยุทธ์ทำกำไรได้ ผลนั้นมาจากการจัดการ position/ความเสี่ยงมากกว่าความแม่นยำของการทำนายทิศทาง"
+  ]
+}

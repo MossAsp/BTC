@@ -1,0 +1,65 @@
+# ============================================================
+# plan.yaml — ไฟล์ config หลักของ BTC/USDT trading pipeline
+# แก้ค่าที่นี่ที่เดียว ไม่ต้องแก้โค้ด
+# ============================================================
+
+data:
+  symbol: "BTC-USD"          # ticker บน Yahoo Finance (BTC/USDT ~ เท่ากับ BTC-USD)
+  cross_assets:               # สินทรัพย์ที่ใช้เป็น cross-asset signal
+    eth: "ETH-USD"
+    dxy: "DX-Y.NYB"           # US Dollar Index
+    vix: "^VIX"                # ตัวชี้วัดความกลัวในตลาด (มหภาค)
+  interval: "1d"               # timeframe: 1d, 1h, 4h ฯลฯ (ตาม yfinance รองรับ)
+  lookback_days: 1500          # ดึงข้อมูลย้อนหลังกี่วัน (ไม่ใช้ตอนนี้ เพราะ fix start_date ไว้ด้านล่างแทน)
+  start_date: "2022-03-01"     # fix ค่าตายตัว เพื่อให้ทุกครั้งที่ทดลอง feature ใช้ข้อมูลชุดเดียวกัน (reproducible)
+
+features:
+  regime_classification: true  # เปิดใช้ 3-class regime (bull/bear/sideways)
+  regime_window: 20            # จำนวนวันย้อนหลังใช้คำนวณ trend สำหรับ regime
+  regime_threshold_pct: 0.05   # % การเปลี่ยนแปลงที่ถือว่าเป็น trend ชัดเจน (bull/bear)
+  atr_period: 14
+  rsi_period: 14
+  macd_fast: 12
+  macd_slow: 26
+  macd_signal: 9
+  bb_period: 20
+  bb_std: 2.0
+
+model:
+  algorithms: ["xgboost", "lightgbm", "randomforest"]
+  ensemble_method: "soft_voting"   # soft_voting = เฉลี่ยความน่าจะเป็นจากทุกโมเดล
+  target_horizon: 7                 # ทำนายทิศทางราคาล่วงหน้ากี่แท่ง
+  walk_forward:
+    enabled: true
+    n_splits: 5
+    test_size_ratio: 0.15
+    purge_days: 7                   # เว้นช่องว่างระหว่าง train/val/test กัน label leakage ต้อง >= target_horizon (ถ้าน้อยกว่าโค้ดจะปรับให้เอง)
+  optuna:
+    enabled: true
+    n_trials: 30                    # ลดได้ถ้าอยากรันเร็วขึ้นตอน debug (เช่น 10)
+    timeout_sec: 1800
+
+backtest:
+  confidence_threshold: 0.55         # ปรับกลับจาก 0.57 -> 0.55 หลัง sweep 2026-09-21: ที่ 0.55 ให้ Sharpe ดีกว่า 0.57 (หมายเหตุ: ที่ threshold >= 0.55 เงื่อนไข min_confidence_gap=0.05 ซ้ำซ้อนกับ threshold จึงไม่มีผลเพิ่ม) (ยังไม่ validate ซ้ำหลังแก้ sqrt(365))
+                                     # เริ่มที่ 0.55 (แทน 0.7+ เดิม) แล้วค่อยปรับขึ้นถ้า precision ต่ำไป
+  min_confidence_gap: 0.05          # ระยะห่างขั้นต่ำของ proba_up จาก 0.5 (|proba_up - 0.5| >= gap) — มีผลเฉพาะเมื่อ threshold < 0.5 + gap
+  initial_capital: 10000
+  fee_pct: 0.001                    # ค่าธรรมเนียม 0.1% ต่อการเทรด (มาตรฐาน Binance spot)
+  slippage_pct: 0.0005
+  stop_loss_pct: 0.03                # ปรับจาก 0.05 -> 0.03 ตามผล sweep_stop_loss.py 2026-10-09 (Sharpe 0.744 ดีที่สุด ที่ TP=0.08, dynamic sizing)
+  take_profit_pct: 0.08              # ปรับจาก 0.10 -> 0.08 ตามผล sweep_tp_sizing.py 2026-10-06 (Sharpe 0.579 ดีที่สุดในคอมโบที่ลอง)
+  position_size_pct: 0.5            # ใช้เป็น fallback เมื่อ position_sizing_mode = "fixed" หรือไม่มี confidence ให้ใช้
+  position_sizing_mode: "dynamic"   # เปิด dynamic sizing กลับมาใช้ — คอมเมนต์เดิมที่บอกว่าแย่กว่า fixed เสมอ (Sharpe 0.306 vs 0.214)
+                                     # เป็นผลทดสอบ "ก่อน" แก้บั๊ก stop loss/take profit (เคยเช็คจาก close แทน low/high)
+                                     # หลังแก้บั๊กแล้ว sweep 2026-10-06 พบว่า dynamic ชนะ fixed ที่ take_profit เดียวกันทุกกรณี
+  min_position_size_pct: 0.3        # ขนาด position ต่ำสุดตอนโมเดลเพิ่งผ่าน threshold แบบเฉียดฉิว
+  max_position_size_pct: 0.8        # ขนาด position สูงสุดตอนโมเดลมั่นใจเต็มที่ (proba_up ใกล้ 1.0)
+
+paths:
+  data_dir: "data"
+  models_dir: "models"
+  results_dir: "results"
+  logs_dir: "logs"
+
+discord:
+  webhook_url: ""   # ใส่ Discord Webhook URL ที่นี่ หรือตั้ง environment variable DISCORD_WEBHOOK_URL แทนก็ได้ (แนะนำ เพราะไม่ต้อง commit URL ลง git)

@@ -1,0 +1,15 @@
+{
+  "n_oos": 1245,
+  "accuracy": 0.48032128514056227,
+  "majority_class_baseline": 0.5357429718875502,
+  "roc_auc": 0.4675274819337736,
+  "brier_score": 0.2682967825241465,
+  "p_value_vs_50pct_naive": 0.9217798887671753,
+  "p_value_vs_majority_naive": 0.9999598495383901,
+  "p_value_vs_majority_conservative": 0.9400092988239012,
+  "n_effective_independent": 177,
+  "n_confident_signals": 677,
+  "accuracy_when_confident": 0.4519940915805022,
+  "n_buy_signals": 280,
+  "up_rate_after_buy_signal": 0.5178571428571429
+}

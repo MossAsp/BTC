@@ -1,0 +1,5 @@
+reason,n,total_pnl,avg_pnl
+end_of_data,1,-6.69,-6.69
+signal,24,1712.41,71.35
+stop_loss,38,-4860.45,-127.91
+take_profit,14,4555.06,325.36
